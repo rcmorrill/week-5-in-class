@@ -9,42 +9,51 @@ var canvas = d3.select('.canvas')
     .append('g');
 
 
-var scaleX = d3.scale.linear()
-    .range([0,width]);
-var scaleY = d3.scale.linear()
-    .range([height,0]);
 
-//TODO step 1: load and parse data
+
 d3.csv('data/world_bank_2013.csv',
     function(d){
-        //accessor function
-        //is run for every row in the table
-        //with d representing unparsed, unchanged row as is
-        //whatever we return is going to replace that
-        return {
-          name: d.country,
-          internetUser: +d.internet_users_per_100,
-          gdpPerCap: +d.GDP_per_capita
+        var newRow ={
+        country: d.country,
+        GDP: +d.GDP,
+        GDP_per_capita: +d.GDP_per_capita,
+        IPH_100: +d.internet_users_per_100
         };
-    },
-    function(error,rows){
+        return newRow;
+}, 
+    function(errors,rows){
+    var minGDPPerCap= d3.min(rows, function(d) {return d.GDP_per_capita;}),
+        maxGDPPerCap= d3.max(rows, function(d) {return d.GDP_per_capita;});
 
-        //TODO step 2: mine data for max and min
-        var minX = d3.min(rows, function(row){ return row.gdpPerCap; }),
-            maxX = d3.max(rows, function(row){ return row.gdpPerCap; });
-        var minY = d3.min(rows, function(row){ return row.internetUser; }),
-            maxY = d3.max(rows, function(row){ return row.internetUser; });
+    var minPctUser= d3.min(rows, function(d) {return d.IPH_100;}),
+        maxPctUser= d3.max(rows, function(d) {return d.IPH_100;});
 
-        scaleX.domain([minX, maxX]);
-        scaleY.domain([minY, maxY]);
+    var scaleX = d3.scale.linear()
+        .domain([minGDPPerCap,maxGDPPerCap])
+        .range([0, width]);
+    var scaleY = d3.scale.linear()
+        .domain([minPctUser,maxPctUser])
+        .range([height, 0]);
+
+    rows.forEach(function(country){
+        var xPos = scaleX(country.GDP_per_capita)
+        var yPos = scaleY(country.IPH_100)
+        var node = canvas.append ('g')
+        .attr('class','country')
+        .attr('transform','translate ('+xPos+','+yPos+')');
+        node
+            .append('circle')
+            .attr('r',10)
+            .style('fill-opacity',.5);
+        node
+            .append('text')
+            .text(country.country);
+        });
+
+ 
+})
 
 
-        //TODO step 3: draw with the data
-        for(var i=0; i< rows.length; i++){
-            canvas.append('circle')
-                .attr('cx', scaleX(rows[i].gdpPerCap) )
-                .attr('cy', scaleY(rows[i].internetUser) )
-                .attr('r',3)
-                .style('fill','white');
-        }
-    });
+
+
+
