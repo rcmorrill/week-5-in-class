@@ -1,13 +1,19 @@
 //Take a moment to set up the drawing environment yourself
-var width = $('.canvas').width(),
-    height = $('.canvas').height();
+/*var width = $('.canvas').width(),
+    height = $('.canvas').height();*/
+
+var margin = {t:40,r:40,b:40,l:40};
+
+var width = document.getElementById('test').clientWidth-margin.l-margin.r,
+    height = document.getElementById('test').clientHeight-margin.t-margin.b;
+
 
 var canvas = d3.select('.canvas')
     .append('svg')
-    .attr('width',width)
-    .attr('height',height)
-    .append('g');
-
+    .attr('width',width+margin.l+margin.r)
+    .attr('height',height+margin.t+margin.b)
+    .append('g')
+    .attr('transform', 'translate ('+margin.l+','+margin.r+')');
 
 
 
